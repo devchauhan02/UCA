@@ -1,0 +1,22 @@
+
+// gaurav sir topics 
+
+1. sorting all algorithim 
+2. time complexity algo and space complexity algo  for linux
+
+// rohit sir topics 
+
+1. linux command 
+2. time complexity algo and space complexity algo for window
+3. single pointer 
+4. multiple pointer and function pointer 
+5. static and dinmic library building 
+
+// ritesh sir topics 
+
+// 1. virtual box and linux introduction -> bash, kernal,  
+// 2. connect git bash in vagrant connection in linux
+// 3. bitwise operator 
+// 4. question bitwise operator // base 64 encoder decoder using bit manupulation
+// 5. operating system -> threading and multithreading , process management 
+ 

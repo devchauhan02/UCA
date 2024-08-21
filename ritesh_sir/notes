@@ -1,0 +1,11 @@
+1. floating point representation
+
+you have given an array and all the number are in the range 0 to 99 number are repeted odd number of time and even number of time 
+
+int arr[] = {1,1,2,2,4,4,4,3} ans  = 3 and 4 
+
+int main(){
+
+	for(int i = 0; i<n; i++){
+		arr[i] *= -1;
+	}

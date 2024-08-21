@@ -1,0 +1,15 @@
+
+** what is operatig system
+ 1. works a abstract 
+ 2. arbitrate 
+ 
+
+** policies --
+ isolated --
+
+resouces allocation 
+
+--- direct access to hardware 
+
+--- mitigate complex task
+
