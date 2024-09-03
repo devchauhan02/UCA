@@ -8,8 +8,51 @@
 typedef struct {
     void **items;
     int capacity;
-    int total;
+    int current_cap;
 } Vector;
+
+Vector* vector_create() {
+    Vector *v = (Vector *)malloc(sizeof(Vector));
+    v->capacity = INITIAL_CAPACITY;
+    v->current_cap = 0;
+    v->items = (void **)malloc(sizeof(void *) * v->capacity);
+    return v;
+}
+
+void vector_resize(Vector *v, int capacity) {
+    void **items = (void **)realloc(v->items, sizeof(void *) * capacity);
+    if (items) {
+        v->items = items;
+        v->capacity = capacity;
+    }
+}
+
+void vector_push_back(Vector *v, void *item) {
+    if (v->capacity == v->current_cap) {
+        vector_resize(v, v->capacity * 2);
+    }
+    v->items[v->current_cap++] = item;
+}
+
+int vector_size(Vector *v) {
+    return v->current_cap;
+}
+
+void* vector_get(Vector *v, int index) {
+    if (index >= 0 && index < v->current_cap) {
+        return v->items[index];
+    }
+    return NULL;
+}
+
+int vector_contains(Vector *v, void *item) {
+    for (int i = 0; i < v->current_cap; i++) {
+        if (v->items[i] == item) {
+            return 1;
+        }
+    }
+    return 0;
+}
 
 
 int main() {
