@@ -1,5 +1,17 @@
 #include <stdio.h>
+#include<stdlib.h>
 // Main function to test the social network
+
+#define INITIAL_CAPACITY 10
+
+// Define a simple vector structure
+typedef struct {
+    void **items;
+    int capacity;
+    int total;
+} Vector;
+
+
 int main() {
     int choice;
     char username[50], password[50], content[100];
