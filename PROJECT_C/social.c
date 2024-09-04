@@ -1,6 +1,7 @@
 #include <stdio.h>
-#include<stdlib.h>
-// Main function to test the social network
+#include <time.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define INITIAL_CAPACITY 10
 
@@ -107,6 +108,39 @@ User* network_get_user(SocialNetwork *network, const char *username) {
     return NULL;
 }
 
+// Function to get the current time as a string
+char* getCurrentTime() {
+    time_t rawtime;
+    struct tm *timeinfo;
+    char *buffer = (char *)malloc(20);  // Allocating 20 bytes for HH:MM:SS format
+
+    time(&rawtime);  // Get the current time
+    timeinfo = localtime(&rawtime);  // Convert it to local time representation
+
+    // Format the time as HH:MM:SS
+    strftime(buffer, 20, "%Y-%m-%d %H:%M:%S", timeinfo);  // 24-hour format
+    return buffer;
+}
+
+// Function to save users to a file
+void saveUsers(SocialNetwork *network) {
+    FILE *file = fopen("users.txt", "w");
+    if (file) {
+        for (int i = 0; i < network->size; i++) {
+            User *user = network->users[i];
+            fprintf(file, "%s %s\n", user->username, user->password);
+            for (int j = 0; j < vector_size(user->posts); j++) {
+                Post *post = (Post *)vector_get(user->posts, j);
+                fprintf(file, "POST %s %s\n", post->timestamp, post->content);
+            }
+            fprintf(file, "END\n");
+        }
+        fclose(file);
+    } else {
+        perror("Error opening file to save users");
+    }
+}
+
 // Function to load users from a file
 void loadUsers(SocialNetwork *network) {
     FILE *file = fopen("users.txt", "r");
@@ -159,16 +193,26 @@ void registerUser(SocialNetwork *network, const char *username, const char *pass
     printf("User %s registered successfully.\n", username);
 }
 
+User* loginUser(SocialNetwork *network, const char *username, const char *password) {
+    User *user = network_get_user(network, username);
+    if (user && strcmp(user->password, password) == 0) {
+        printf("User %s logged in successfully.\n", username);
+        return user;
+    }
+    printf("Invalid username or password.\n");
+    return NULL;
+}
 
+// Main function to test the social network
 int main() {
-
     SocialNetwork *network = createNetwork();
     loadUsers(network);  // Load users from file
+
     int choice;
     char username[50], password[50], content[100];
 
     while (1) {
-        printf("\n1. Register\n2. Login\n3. Exit\nEnter your choice: ");
+        printf("\n1. Register\n2. Login\n3. View All Users\n4. Exit\nEnter your choice: ");
         scanf("%d", &choice);
 
         if (choice == 1) {
@@ -182,8 +226,8 @@ int main() {
             scanf("%s", username);
             printf("Enter password: ");
             scanf("%s", password);
-          
-        }
+            User *loggedInUser = loginUser(network, username, password);
+        } 
     }
     return 0;
 }
