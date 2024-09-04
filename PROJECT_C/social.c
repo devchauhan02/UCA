@@ -54,6 +54,27 @@ int vector_contains(Vector *v, void *item) {
     return 0;
 }
 
+// Define User and Post structures
+typedef struct {
+    char *content;
+    char *timestamp;
+} Post;
+
+typedef struct {
+    char *username;
+    char *password;
+    Vector *followers;
+    Vector *following;
+    Vector *posts;
+} User;
+
+// Define the Social Network structure
+typedef struct {
+    User **users;
+    int capacity;
+    int size;
+} SocialNetwork;
+
 
 int main() {
     int choice;
