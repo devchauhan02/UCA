@@ -75,8 +75,95 @@ typedef struct {
     int size;
 } SocialNetwork;
 
+SocialNetwork* createNetwork() {
+    SocialNetwork *network = (SocialNetwork *)malloc(sizeof(SocialNetwork));
+    network->capacity = INITIAL_CAPACITY;
+    network->size = 0;
+    network->users = (User **)malloc(sizeof(User *) * network->capacity);
+    return network;
+}
+
+void network_resize(SocialNetwork *network, int capacity) {
+    User **users = (User **)realloc(network->users, sizeof(User *) * capacity);
+    if (users) {
+        network->users = users;
+        network->capacity = capacity;
+    }
+}
+
+void network_add_user(SocialNetwork *network, User *user) {
+    if (network->size == network->capacity) {
+        network_resize(network, network->capacity * 2);
+    }
+    network->users[network->size++] = user;
+}
+
+User* network_get_user(SocialNetwork *network, const char *username) {
+    for (int i = 0; i < network->size; i++) {
+        if (strcmp(network->users[i]->username, username) == 0) {
+            return network->users[i];
+        }
+    }
+    return NULL;
+}
+
+// Function to load users from a file
+void loadUsers(SocialNetwork *network) {
+    FILE *file = fopen("users.txt", "r");
+    if (file) {
+        char username[50], password[50], content[100], timestamp[20];
+        while (fscanf(file, "%s %s", username, password) != EOF) {
+            User *newUser = (User *)malloc(sizeof(User));
+            newUser->username = strdup(username);
+            newUser->password = strdup(password);
+            newUser->followers = vector_create();
+            newUser->following = vector_create();
+            newUser->posts = vector_create();
+            while (fscanf(file, "%s", timestamp) != EOF && strcmp(timestamp, "END") != 0) {
+                if (strcmp(timestamp, "POST") == 0) {
+                    // Read the timestamp
+                    fscanf(file, "%s", timestamp);
+                    // Read the content, which might be on a new line
+                    if (fgets(content, sizeof(content), file) != NULL) {
+                        // Remove the newline character from the content
+                        content[strcspn(content, "\n")] = 0;
+                        Post *newPost = (Post *)malloc(sizeof(Post));
+                        newPost->content = strdup(content);
+                        newPost->timestamp = strdup(timestamp);
+                        vector_push_back(newUser->posts, newPost);
+                    }
+                }
+            }
+            network_add_user(network, newUser);
+        }
+        fclose(file);
+    } else {
+        perror("Error opening file to load users");
+    }
+}
+
+void registerUser(SocialNetwork *network, const char *username, const char *password) {
+    if (network_get_user(network, username) != NULL) {
+        printf("Username already exists.\n");
+        return;
+    }
+
+    User *newUser = (User *)malloc(sizeof(User));
+    newUser->username = strdup(username);
+    newUser->password = strdup(password);
+    newUser->followers = vector_create();
+    newUser->following = vector_create();
+    newUser->posts = vector_create();
+
+    network_add_user(network, newUser);
+    printf("User %s registered successfully.\n", username);
+}
+
 
 int main() {
+
+    SocialNetwork *network = createNetwork();
+    loadUsers(network);  // Load users from file
     int choice;
     char username[50], password[50], content[100];
 
@@ -89,7 +176,7 @@ int main() {
             scanf("%s", username);
             printf("Enter password: ");
             scanf("%s", password);
-            
+            registerUser(network, username, password);
         } else if (choice == 2) {
             printf("Enter username: ");
             scanf("%s", username);
