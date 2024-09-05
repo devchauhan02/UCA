@@ -203,6 +203,80 @@ User* loginUser(SocialNetwork *network, const char *username, const char *passwo
     return NULL;
 }
 
+
+void followUser(User *user, User *toFollow) {
+    if (vector_contains(user->following, toFollow)) {
+        printf("Already following %s.\n", toFollow->username);
+        return;
+    }
+
+    vector_push_back(user->following, toFollow);
+    vector_push_back(toFollow->followers, user);
+    printf("%s is now following %s.\n", user->username, toFollow->username);
+}
+
+void createPost(User *user, const char *content) {
+    Post *newPost = (Post *)malloc(sizeof(Post));
+    newPost->content = strdup(content);
+    newPost->timestamp = getCurrentTime();
+
+    vector_push_back(user->posts, newPost);
+    printf("Post created by %s: %s\n", user->username, content);
+}
+
+void viewFollowing(User *user) {
+    printf("%s is following:\n", user->username);
+    for (int i = 0; i < vector_size(user->following); i++) {
+        User *followingUser = (User *)vector_get(user->following, i);
+        printf("- %s\n", followingUser->username);
+    }
+}
+
+void viewAllUsers(SocialNetwork *network) {
+    printf("Registered users:\n");
+    for (int i = 0; i < network->size; i++) {
+        User *user = network->users[i];
+        printf("- %s\n", user->username);
+    }
+}
+
+void viewUserFeed(User *user) {
+    printf("Feed for %s:\n", user->username);
+
+    // Display the user's own posts
+    for (int j = 0; j < vector_size(user->posts); j++) {
+        Post *post = (Post *)vector_get(user->posts, j);
+        printf("%s (You) posted: %s at %s\n", user->username, post->content, post->timestamp);
+    }
+}
+
+void viewFollowingFeed(User *user) {
+    printf("Feed of users %s is following:\n", user->username);
+
+    // Display posts from users that the current user is following
+    for (int i = 0; i < vector_size(user->following); i++) {
+        User *followingUser = (User *)vector_get(user->following, i);
+        for (int j = 0; j < vector_size(followingUser->posts); j++) {
+            Post *post = (Post *)vector_get(followingUser->posts, j);
+            printf("%s posted: %s at %s\n", followingUser->username, post->content, post->timestamp);
+        }
+    }
+}
+
+void viewFollowersFeed(User *user) {
+    printf("Feed of users following %s:\n", user->username);
+
+    // Display posts from users who follow the current user
+    for (int i = 0; i < vector_size(user->followers); i++) {
+        User *followerUser = (User *)vector_get(user->followers, i);
+        for (int j = 0; j < vector_size(followerUser->posts); j++) {
+            Post *post = (Post *)vector_get(followerUser->posts, j);
+            printf("%s (follower) posted: %s at %s\n", followerUser->username, post->content, post->timestamp);
+        }
+    }
+}
+
+
 // Main function to test the social network
 int main() {
     SocialNetwork *network = createNetwork();
@@ -227,7 +301,40 @@ int main() {
             printf("Enter password: ");
             scanf("%s", password);
             User *loggedInUser = loginUser(network, username, password);
-        } 
+             if (loggedInUser) {
+                int loggedInChoice;
+                while (1) {
+                    printf("\n1. Create Post\n2. Follow User\n3. View Following\n4. View Your Feed\n5. View Following Feed\n6. View Followers Feed\n7. Go Back\nEnter your choice: ");
+                    scanf("%d", &loggedInChoice);
+                    if (loggedInChoice == 1) {
+                        printf("Enter post content: ");
+                        getchar();  // To clear newline character from buffer
+                        fgets(content, sizeof(content), stdin);
+                        content[strcspn(content, "\n")] = 0;  // Remove trailing newline
+                        createPost(loggedInUser, content);
+                    } else if (loggedInChoice == 2) {
+                        printf("Enter username to follow: ");
+                        scanf("%s", username);
+                        User *toFollow = network_get_user(network, username);
+                        if (toFollow) {
+                            followUser(loggedInUser, toFollow);
+                        } else {
+                            printf("User not found.\n");
+                        }
+                    } else if (loggedInChoice == 3) {
+                        viewFollowing(loggedInUser);
+                    } else if (loggedInChoice == 4) {
+                        viewUserFeed(loggedInUser);
+                    } else if (loggedInChoice == 5) {
+                        viewFollowingFeed(loggedInUser);
+                    } else if (loggedInChoice == 6) {
+                        viewFollowersFeed(loggedInUser);
+                    } else if (loggedInChoice == 7) {
+                        break;
+                    }
+                }
+            }
+        }
     }
     return 0;
 }
