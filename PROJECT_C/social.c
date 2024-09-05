@@ -339,5 +339,27 @@ int main() {
             break;
         }
     }
+    
+    // Free allocated memory
+    for (int i = 0; i < network->size; i++) {
+        User *user = network->users[i];
+        for (int j = 0; j < vector_size(user->posts); j++) {
+            Post *post = (Post *)vector_get(user->posts, j);
+            free(post->content);
+            free(post->timestamp);
+            free(post);
+        }
+        free(user->username);
+        free(user->password);
+        free(user->followers->items);
+        free(user->following->items);
+        free(user->posts->items);
+        free(user->followers);
+        free(user->following);
+        free(user->posts);
+        free(user);
+    }
+    free(network->users);
+    free(network);
     return 0;
 }
