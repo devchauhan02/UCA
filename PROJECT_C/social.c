@@ -203,7 +203,6 @@ User* loginUser(SocialNetwork *network, const char *username, const char *passwo
     return NULL;
 }
 
-
 void followUser(User *user, User *toFollow) {
     if (vector_contains(user->following, toFollow)) {
         printf("Already following %s.\n", toFollow->username);
@@ -276,7 +275,6 @@ void viewFollowersFeed(User *user) {
     }
 }
 
-
 // Main function to test the social network
 int main() {
     SocialNetwork *network = createNetwork();
@@ -301,7 +299,7 @@ int main() {
             printf("Enter password: ");
             scanf("%s", password);
             User *loggedInUser = loginUser(network, username, password);
-             if (loggedInUser) {
+            if (loggedInUser) {
                 int loggedInChoice;
                 while (1) {
                     printf("\n1. Create Post\n2. Follow User\n3. View Following\n4. View Your Feed\n5. View Following Feed\n6. View Followers Feed\n7. Go Back\nEnter your choice: ");
@@ -334,6 +332,11 @@ int main() {
                     }
                 }
             }
+        } else if (choice == 3) {
+            viewAllUsers(network);
+        } else if (choice == 4) {
+            saveUsers(network);  // Save users to file before exiting
+            break;
         }
     }
     return 0;
